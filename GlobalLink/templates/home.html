@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mini Social Network - Rejoins-nous !</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      background: #f8f9fa;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 5rem 1rem 4rem;
+    }
+    h1 { margin: 0; font-size: 3.2rem; }
+    .lead { font-size: 1.4rem; opacity: 0.9; margin: 1.5rem 0 2.5rem; }
+    .btn {
+      display: inline-block;
+      padding: 0.9rem 2rem;
+      margin: 0.5rem;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: #ffffff;
+      color: #4f46e5;
+      font-weight: bold;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    .btn-outline {
+      border: 2px solid white;
+      color: white;
+    }
+    .btn-outline:hover {
+      background: white;
+      color: #4f46e5;
+    }
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin: 4rem 0;
+    }
+    .feature-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 100%; max-width: 320px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5rem; }
+      .lead { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <h1>Mini Social Network</h1>
+      <p class="lead">Partage tes idées, tes photos, tes pensées<br>avec une communauté simple et sans tracking</p>
+      
+      <div>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary">S'inscrire gratuitement</a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline">Se connecter</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="container">
+    <h2 style="margin: 4rem 0 2rem;">Pourquoi nous rejoindre ?</h2>
+    
+    <div class="features">
+      <div class="feature-card">
+        <h3>Simple & Rapide</h3>
+        <p>Pas de pubs, pas d'algorithme compliqué. Juste tes posts et ceux de tes amis.</p>
+      </div>
+      <div class="feature-card">
+        <h3>100% Privé</h3>
+        <p>Ton contenu reste entre nous. Aucune revente de données.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Contrôle total</h3>
+        <p>Like, publie, supprime quand tu veux. Tout est clair.</p>
+      </div>
+    </div>
+
+    <div style="margin: 5rem 0;">
+      <h3>Déjà prêt à partager ?</h3>
+      <a href="{% url 'accounts:register' %}" class="btn btn-primary" style="font-size: 1.3rem; padding: 1.1rem 3rem;">
+        Créer mon compte maintenant
+      </a>
+    </div>
+  </section>
+
+</body>
+</html>
