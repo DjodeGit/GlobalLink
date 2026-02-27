@@ -1,4 +1,7 @@
+
 # Python / Django
+virtuel/
+
 __pycache__/
 *.py[cod]
 *.pyc
@@ -28,6 +31,7 @@ db.sqlite3-journal
 # Tests et coverage
 .pytest_cache/
 .coverage
+
 coverage.xml
 htmlcov/
 *.cover
@@ -43,3 +47,4 @@ ehthumbs.db
 
 # Logs et temporaires
 *.log
+

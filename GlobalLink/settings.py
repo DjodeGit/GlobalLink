@@ -12,7 +12,12 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except Exception:
+    # Fallback no-op if python-dotenv isn't installed (avoids import error)
+    def load_dotenv(*args, **kwargs):
+        return False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,7 +47,10 @@ INSTALLED_APPS = [
     'accounts',
     'interactions',
     'posts',
-]
+    ]
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+LOGIN_REDIRECT_URL = 'fils_actualite'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,13 +90,13 @@ load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME') ,
-        'USER': os.getenv('DB_USER') ,
-        'PASSWORD': os.getenv('DB_PASSWORD') ,
+        'NAME': os.getenv('DB_NAME') or 'GlobalLinkDB',
+        'USER': os.getenv('DB_USER') or 'root',
+        'PASSWORD': os.getenv('DB_PASSWORD') or '',
         'HOST': os.getenv('DB_HOST') or '127.0.0.1',
-        'PORT': os.getenv('DB_PORT') or '3307',
+        'PORT': os.getenv('DB_PORT') or '3306',
         'OPTIONS': {
-            'charset': os.getenv('DB_CHARSET') ,
+            'charset': os.getenv('DB_CHARSET') or 'utf8mb4',
         },
     }
 }
