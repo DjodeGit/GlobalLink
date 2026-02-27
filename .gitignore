@@ -1,5 +1,7 @@
 virtuel/
-.env
 __pycache__/
-db.sqlite3
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage

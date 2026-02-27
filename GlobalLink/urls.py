@@ -4,7 +4,7 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from accounts.views import signup
 from posts.views import feed  # Import the feed view from posts app
-from posts.views import toggle_like, add_comment, share_post
+from posts.views import toggle_like, add_comment,repost
 
 
 urlpatterns = [
@@ -22,6 +22,5 @@ urlpatterns = [
     
     path('posts/like/<int:post_id>/', toggle_like, name='toggle_like'),
     path('posts/comment/add/<int:post_id>/', add_comment, name='add_comment'),
-    path('posts/share/<int:post_id>/', share_post, name='share_post'),
-    
+    path('posts/repost/<int:post_id>/', repost, name='repost'), 
 ]

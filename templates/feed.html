@@ -1,430 +1,400 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="bg-gray-50">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fil d'actualité - GlobalLink</title>
 
-    <!-- Font Awesome pour les icônes -->
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
 
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#6366f1",
+              primarydark: "#4f46e5"
+            }
+          }
+        }
+      };
+    </script>
+
     <style>
-      :root {
-        --primary: #6366f1;
-        --primary-dark: #4f46e5;
-        --bg: #f9fafb;
-        --card: #ffffff;
-        --text: #111827;
-        --gray: #6b7280;
-        --border: #e5e7eb;
-        --like: #ef4444;
-        --notify: #f87171;
+      .heart-beat {
+        animation: beat 0.5s ease-in-out;
       }
-      body {
-        margin: 0;
-        font-family: system-ui, sans-serif;
-        background: var(--bg);
-        color: var(--text);
+      @keyframes beat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.4);
+        }
       }
-      .top-bar {
-        background: white;
-        border-bottom: 1px solid var(--border);
-        padding: 0.8rem 1rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      .comment-slide {
+        animation: slideIn 0.4s ease-out;
       }
-      .top-container {
-        max-width: 1100px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
-      .logo {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--primary);
-        text-decoration: none;
-      }
-      .icons {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-      }
-      .icon-btn {
-        font-size: 1.4rem;
-        color: var(--gray);
-        cursor: pointer;
-        position: relative;
-        transition: color 0.2s;
-      }
-      .icon-btn:hover {
-        color: var(--primary);
-      }
-      .badge {
-        position: absolute;
-        top: -6px;
-        right: -8px;
-        background: var(--notify);
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 8px;
         color: white;
-        font-size: 0.65rem;
-        font-weight: bold;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.4s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       }
-      .avatar-top {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #e2e8f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: white;
-        cursor: pointer;
-      }
-      .container {
-        max-width: 700px;
-        margin: 1rem auto;
-        padding: 0 1rem;
-      }
-      .publish-box {
-        background: white;
-        border-radius: 1rem;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-      textarea {
-        width: 100%;
-        min-height: 80px;
-        border: 1px solid var(--border);
-        border-radius: 0.8rem;
-        padding: 0.8rem;
-        resize: vertical;
-        font-size: 1rem;
-        margin-bottom: 0.6rem;
-      }
-      .btn-publish {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 0.7rem 1.5rem;
-        border-radius: 9999px;
-        font-weight: 600;
-        cursor: pointer;
-        float: right;
-      }
-      .post {
-        background: white;
-        border-radius: 1rem;
-        padding: 1.2rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-      .post-header {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        margin-bottom: 0.8rem;
-      }
-      .avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: #e2e8f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: white;
-      }
-      .username {
-        font-weight: 600;
-      }
-      .time {
-        color: var(--gray);
-        font-size: 0.85rem;
-      }
-      .post-content {
-        margin: 0.5rem 0 1rem;
-        white-space: pre-wrap;
-      }
-      .post-actions {
-        display: flex;
-        gap: 1.8rem;
-        color: var(--gray);
-        font-size: 0.95rem;
-      }
-      .action {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-      }
-      .action:hover {
-        color: var(--primary);
-      }
-      .liked {
-        color: var(--like);
-      }
-      .pagination {
-        text-align: center;
-        margin: 2rem 0;
-        color: var(--gray);
-      }
-      .pagination a {
-        margin: 0 0.6rem;
-        color: var(--primary);
-        text-decoration: none;
-      }
-      .message {
-        padding: 1rem;
-        border-radius: 0.6rem;
-        margin-bottom: 1rem;
-        text-align: center;
-      }
-      .success {
-        background: #d1fae5;
-        color: #065f46;
-      }
-      .error {
-        background: #fee2e2;
-        color: #991b1b;
+      .toast.show {
+        opacity: 1;
       }
     </style>
   </head>
-  <body>
-    <div class="top-bar">
-      <div class="container header">
-        <a href="{% url 'fils_actualite' %}" class="logo">GlobalLink</a>
+  <body class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <!-- Barre supérieure -->
+    <header
+      class="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-opacity-95"
+    >
+      <div
+        class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <a
+          href="{% url 'fils_actualite' %}"
+          class="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+        >
+          GlobalLink
+        </a>
 
-        <div class="icons">
-          <!-- Profil -->
-          <a href="{% url 'profile' %}" class="icon-btn">
-            <div class="avatar-top">{{ user.username|slice:":1"|upper }}</div>
+        <div class="flex items-center space-x-8">
+          <a
+            href="{% url 'profile' %}"
+            class="flex items-center gap-3 hover:scale-105 transition"
+          >
+            <div
+              class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg"
+            >
+              {{ user.username|slice:":1"|upper }}
+            </div>
           </a>
 
-          <!-- Notifications -->
-          <span class="icon-btn">
+          <button
+            class="relative text-gray-700 hover:text-indigo-600 transition text-2xl"
+          >
             <i class="fas fa-bell"></i>
-            <span class="badge">3</span>
-          </span>
+            <span
+              class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm"
+            >
+              3
+            </span>
+          </button>
 
-          <!-- Déconnexion -->
-          <a href="{% url 'logout' %}" class="icon-btn">
+          <a
+            href="{% url 'logout' %}"
+            class="text-gray-700 hover:text-red-600 transition text-2xl"
+          >
             <i class="fas fa-sign-out-alt"></i>
           </a>
         </div>
       </div>
-    </div>
+    </header>
 
-    <div class="container">
+    <main class="max-w-3xl mx-auto px-4 py-10">
+      <!-- Messages -->
       {% if messages %} {% for message in messages %}
       <div
-        class="message {% if message.tags == 'success' %}success{% else %}error{% endif %}"
+        class="mb-6 p-4 rounded-xl shadow {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500{% else %}bg-red-100 text-red-800 border-l-4 border-red-500{% endif %}"
       >
         {{ message }}
       </div>
       {% endfor %} {% endif %}
 
-      <!-- Barre de publication -->
-      <form method="post" class="publish-box">
+      <!-- Barre publication -->
+      <form method="post" class="bg-white rounded-2xl shadow-2xl p-6 mb-10">
         {% csrf_token %}
         <textarea
           name="content"
-          placeholder="Écrivez votre publication ici..."
+          rows="3"
+          class="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none text-lg placeholder-gray-500"
+          placeholder="Quoi de neuf, {{ user.username }} ?"
           required
         ></textarea>
-        <button type="submit" class="btn-publish">Publier</button>
+        <div class="flex justify-end mt-4">
+          <button
+            type="submit"
+            class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-10 py-3 rounded-full font-bold shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 transition-all transform hover:-translate-y-1"
+          >
+            Publier
+          </button>
+        </div>
       </form>
 
-      <!-- Liste des posts -->
+      <!-- Posts -->
       {% for post in page_obj %}
-      <div class="post">
-        <div class="post-header">
-          <div class="avatar">{{ post.author.username|slice:":1"|upper }}</div>
-          <div>
-            <div class="username">{{ post.author.username }}</div>
-            <div class="time">
-              {{ post.created_at|timesince }} · <a href="#">Voir profil</a>
+      <article
+        class="bg-white rounded-2xl shadow-2xl mb-10 overflow-hidden transition-all hover:shadow-3xl"
+      >
+        <div class="p-6">
+          <div class="flex items-center gap-4 mb-4">
+            <div
+              class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md"
+            >
+              {{ post.author.username|slice:":1"|upper }}
+            </div>
+            <div>
+              <p class="font-bold text-xl">{{ post.author.username }}</p>
+              <p class="text-sm text-gray-500">
+                {{ post.created_at|timesince }} ·
+                <a href="#" class="text-indigo-600 hover:underline">Profil</a>
+              </p>
             </div>
           </div>
-        </div>
 
-        <div class="post-content">{{ post.content|linebreaks }}</div>
-
-        <div class="post-actions">
-          <span
-            class="action like-btn {% if post.is_liked %}liked{% endif %}"
-            data-post-id="{{ post.id }}"
-            title="Like / Unlike"
+          <div
+            class="text-gray-900 mb-6 leading-relaxed text-lg whitespace-pre-wrap"
           >
-            <i class="fas fa-heart"></i> {{ post.like_set.count }}
-          </span>
+            {{ post.content|linebreaks }}
+          </div>
 
-          <span
-            class="action comment-btn"
+          <div class="flex items-center gap-12 text-gray-600">
+            <button
+              class="like-btn flex items-center gap-2 text-xl transition-all {% if post.is_liked %}text-red-500 scale-110{% else %}hover:text-red-500{% endif %}"
+              data-post-id="{{ post.id }}"
+            >
+              <i class="fas fa-heart"></i>
+              <span class="font-semibold">{{ post.like_set.count }}</span>
+            </button>
+
+            <button
+              class="comment-toggle flex items-center gap-2 text-xl hover:text-indigo-600 transition"
+              data-post-id="{{ post.id }}"
+            >
+              <i class="fas fa-comment"></i>
+              <span class="font-semibold">Commenter</span>
+            </button>
+
+            <button
+              class="share-btn flex items-center gap-2 text-xl hover:text-green-600 transition"
+              data-post-id="{{ post.id }}"
+              data-post-url="{{ request.build_absolute_uri }}?post={{ post.id }}"
+            >
+              <i class="fas fa-share-alt"></i>
+              <span class="font-semibold">repartager</span>
+            </button>
+          </div>
+
+          <!-- Formulaire commentaire -->
+          <form
+            class="comment-form hidden mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200"
             data-post-id="{{ post.id }}"
-            title="Commenter"
           >
-            <i class="fas fa-comment"></i> Commenter
-          </span>
+            <textarea
+              name="content"
+              rows="2"
+              class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+              placeholder="Votre commentaire..."
+              required
+            ></textarea>
+            <div class="flex justify-end mt-3">
+              <button
+                type="submit"
+                class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
+              >
+                Envoyer
+              </button>
+            </div>
+          </form>
 
-          <span
-            class="action share-btn"
-            data-post-id="{{ post.id }}"
-            title="Partager"
-          >
-            <i class="fas fa-share-alt"></i> Partager
-          </span>
+          <!-- Commentaires -->
+          <div id="comments-{{ post.id }}" class="mt-5 space-y-4">
+            <!-- Commentaires ajoutés ici -->
+          </div>
         </div>
-
-        <!-- Formulaire commentaire (caché par défaut) -->
-        <form
-          class="comment-form"
-          style="display: none; margin-top: 1rem"
-          data-post-id="{{ post.id }}"
-        >
-          <textarea
-            name="content"
-            placeholder="Votre commentaire..."
-            required
-          ></textarea>
-          <button type="submit">Envoyer</button>
-        </form>
-
-        <!-- Zone où les commentaires s'affichent -->
-        <div class="comments-list" id="comments-{{ post.id }}">
-          <!-- Les commentaires seront ajoutés ici en JS -->
-        </div>
-      </div>
+      </article>
       {% empty %}
-      <p style="text-align: center; color: var(--gray); padding: 2rem">
-        Aucune publication pour le moment...
-      </p>
+      <div class="text-center py-20 text-gray-600 text-xl font-medium">
+        Soyez le premier à partager quelque chose !
+      </div>
       {% endfor %}
 
       <!-- Pagination -->
       {% if page_obj.has_other_pages %}
-      <div class="pagination">
+      <div class="flex justify-center gap-8 mt-12">
         {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">Précédent</a>
-        {% endif %} Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages
-        }} {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">Suivant</a>
+        <a
+          href="?page={{ page_obj.previous_page_number }}"
+          class="px-8 py-3 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium"
+        >
+          Précédent
+        </a>
+        {% endif %}
+        <span class="px-8 py-3 font-medium text-gray-700">
+          Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+        <a
+          href="?page={{ page_obj.next_page_number }}"
+          class="px-8 py-3 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium"
+        >
+          Suivant
+        </a>
         {% endif %}
       </div>
       {% endif %}
-    </div>
+    </main>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
 
     <script>
-      // CSRF token (obligatoire pour POST en AJAX)
       const csrfToken = "{{ csrf_token }}";
+      const toast = document.getElementById("toast");
 
-      // Like / Unlike
+      function showToast(msg, type = "success") {
+        toast.textContent = msg;
+        toast.className = `toast show ${
+          type === "success" ? "bg-green-600" : "bg-red-600"
+        }`;
+        setTimeout(() => toast.classList.remove("show"), 3500);
+      }
+
+      // Like
       document.querySelectorAll(".like-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const postId = this.dataset.postId;
-          fetch(`/posts/like/${postId}/`, {
-            method: "POST",
-            headers: {
-              "X-CSRFToken": csrfToken,
-              "Content-Type": "application/json"
-            }
-          })
-            .then((r) => r.json())
-            .then((data) => {
-              if (data.success) {
-                if (data.liked) {
-                  this.classList.add("liked");
-                } else {
-                  this.classList.remove("liked");
-                }
-                this.innerHTML = `<i class="fas fa-heart"></i> ${data.likes_count}`;
+        btn.addEventListener("click", async () => {
+          const postId = btn.dataset.postId;
+          try {
+            const res = await fetch(`/posts/like/${postId}/`, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/json"
               }
-            })
-            .catch((err) => console.error("Erreur like:", err));
+            });
+            if (!res.ok) throw new Error(`Erreur ${res.status}`);
+            const data = await res.json();
+            if (data.success) {
+              if (data.liked) {
+                btn.classList.add("liked");
+                btn.querySelector("i").classList.add("heart-beat");
+                setTimeout(
+                  () => btn.querySelector("i").classList.remove("heart-beat"),
+                  600
+                );
+              } else {
+                btn.classList.remove("liked");
+              }
+              btn.innerHTML = `<i class="fas fa-heart text-xl"></i> ${data.likes_count}`;
+              showToast(data.liked ? "J'aime !" : "Like retiré");
+            }
+          } catch (err) {
+            console.error("Like erreur:", err);
+            showToast("Erreur réseau", "error");
+          }
         });
       });
 
-      // Commenter : afficher formulaire
-      document.querySelectorAll(".comment-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const postId = this.dataset.postId;
+      // Commentaire
+      document.querySelectorAll(".comment-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const postId = btn.dataset.postId;
           const form = document.querySelector(
             `.comment-form[data-post-id="${postId}"]`
           );
-          form.style.display = form.style.display === "none" ? "block" : "none";
+          form.classList.toggle("hidden");
+          if (!form.classList.contains("hidden"))
+            form.querySelector("textarea").focus();
         });
       });
 
-      // Envoyer commentaire
       document.querySelectorAll(".comment-form").forEach((form) => {
-        form.addEventListener("submit", function (e) {
+        form.addEventListener("submit", async (e) => {
           e.preventDefault();
-          const postId = this.dataset.postId;
-          const content = this.querySelector("textarea").value.trim();
+          const postId = form.dataset.postId;
+          const textarea = form.querySelector("textarea");
+          const content = textarea.value.trim();
 
-          if (!content) return;
+          if (!content) return showToast("Écris quelque chose !", "error");
 
-          fetch(`/posts/comment/add/${postId}/`, {
-            method: "POST",
-            headers: {
-              "X-CSRFToken": csrfToken,
-              "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: `content=${encodeURIComponent(content)}`
-          })
-            .then((r) => r.json())
-            .then((data) => {
-              if (data.success) {
-                const commentsDiv = document.getElementById(
-                  `comments-${postId}`
-                );
-                const newComment = document.createElement("div");
-                newComment.className = "comment";
-                newComment.style.margin = "0.8rem 0";
-                newComment.innerHTML = `
-                            <strong>${data.comment.author}</strong> 
-                            <small>(${data.comment.created_at})</small><br>
-                            ${data.comment.content}
-                        `;
-                commentsDiv.prepend(newComment);
-                this.querySelector("textarea").value = "";
-                this.style.display = "none";
-              } else {
-                alert(data.error || "Erreur");
-              }
-            })
-            .catch((err) => console.error("Erreur commentaire:", err));
+          try {
+            const res = await fetch(`/posts/comment/add/${postId}/`, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              body: `content=${encodeURIComponent(content)}`
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              const commentsDiv = document.getElementById(`comments-${postId}`);
+              const newComment = document.createElement("div");
+              newComment.className =
+                "comment-slide bg-gray-50 p-4 rounded-xl mt-4 border-l-4 border-indigo-500 animate-fadeIn";
+              newComment.innerHTML = `
+              <div class="flex items-center gap-2 mb-1">
+                <strong class="text-indigo-700">${data.comment.author}</strong>
+                <small class="text-gray-500">${data.comment.created_at}</small>
+              </div>
+              <p class="text-gray-800">${data.comment.content}</p>
+            `;
+              commentsDiv.prepend(newComment);
+              textarea.value = "";
+              form.classList.add("hidden");
+              showToast("Commentaire ajouté !");
+            } else {
+              showToast(data.error || "Erreur serveur", "error");
+            }
+          } catch (err) {
+            console.error("Commentaire erreur:", err);
+            showToast("Erreur réseau", "error");
+          }
         });
       });
 
-      // Partager : copie l'URL dans le presse-papiers
       document.querySelectorAll(".share-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const postId = this.dataset.postId;
-          const url = `${window.location.origin}/feed/?post=${postId}`; // À adapter si page détail
-          navigator.clipboard
-            .writeText(url)
-            .then(() => {
-              alert("Lien du post copié !");
-            })
-            .catch((err) => {
-              alert("Erreur lors de la copie");
-              console.error(err);
+        btn.addEventListener("click", async () => {
+          const postId = btn.dataset.postId;
+          try {
+            const res = await fetch(`/posts/repost/${postId}/`, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/json"
+              }
             });
+            const data = await res.json();
+            if (data.success) {
+              showToast("Publication repostée dans ton fil !");
+              // Optionnel : recharger la page ou ajouter le repost dynamiquement
+              // location.reload(); // ou insérer le nouveau post en haut
+            } else {
+              showToast(data.error || "Erreur", "error");
+            }
+          } catch (err) {
+            console.error("Repost erreur:", err);
+            showToast("Erreur réseau", "error");
+          }
         });
       });
     </script>
