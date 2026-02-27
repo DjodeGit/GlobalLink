@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+load_dotenv()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-8gu#*5cm6#ijsdw9fb=ia5u!yaokx016+s@7#h%^ecifit&yo$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -82,13 +82,24 @@ load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''), # '' par défaut si vide
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': os.getenv('DB_NAME') ,
+        'USER': os.getenv('DB_USER') ,
+        'PASSWORD': os.getenv('DB_PASSWORD') ,
+        'HOST': os.getenv('DB_HOST') or '127.0.0.1',
+        'PORT': os.getenv('DB_PORT') or '3307',
+        'OPTIONS': {
+            'charset': os.getenv('DB_CHARSET') ,
+        },
     }
 }
+
+
+# If you use a non-standard MySQL socket (for example XAMPP at /opt/lampp/...),
+# set DB_SOCKET in your .env file and Django will use the unix socket instead
+# of TCP. Example in .env: DB_SOCKET=/opt/lampp/var/mysql/mysql.sock
+db_socket = os.getenv('DB_SOCKET')
+if db_socket:
+    DATABASES['default']['OPTIONS']['unix_socket'] = db_socket
 
 
 # Password validation
