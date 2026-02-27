@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - GlobalLink</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #ffffff;
+            --text: #111827;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+        }
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem;
+            color: var(--primary);
+        }
+        .subtitle {
+            color: var(--text-light);
+            margin: 0 0 2rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        label {
+            text-align: left;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.6rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 0.6rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .links {
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+        .links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 480px) {
+            .card { padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>GlobalLink</h1>
+        <p class="subtitle">Connectez-vous à votre compte</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <p style="color: #ef4444; margin-bottom: 1rem;">Nom d'utilisateur ou mot de passe incorrect.</p>
+            {% endif %}
+
+            <div>
+                <label for="id_username">Nom d'utilisateur</label>
+                {{ form.username }}
+            </div>
+
+            <div>
+                <label for="id_password">Mot de passe</label>
+                {{ form.password }}
+            </div>
+
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <div class="links">
+            <p>Pas de compte ? <a href="{% url 'signup' %}">S'inscrire</a></p>
+            <p><a href="#">Mot de passe oublié ?</a></p>
+        </div>
+    </div>
+
+</body>
+</html>
