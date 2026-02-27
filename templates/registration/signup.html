@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscription - GlobalLink</title>
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --bg: #ffffff;
+        --text: #111827;
+        --text-light: #6b7280;
+        --border: #e5e7eb;
+        --error: #ef4444;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
+      .card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 420px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+      }
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        color: var(--primary);
+      }
+      .subtitle {
+        color: var(--text-light);
+        margin: 0 0 2rem;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        text-align: left;
+      }
+      label {
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+        display: block;
+      }
+      input {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+      input.error {
+        border-color: var(--error);
+      }
+      button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 0.6rem;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+      }
+      .links {
+        margin-top: 1.5rem;
+        font-size: 0.95rem;
+        color: var(--text-light);
+      }
+      .links a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .links a:hover {
+        text-decoration: underline;
+      }
+      .errorlist {
+        color: var(--error);
+        font-size: 0.9rem;
+        margin: 0.3rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      @media (max-width: 480px) {
+        .card {
+          padding: 2rem 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>GlobalLink</h1>
+      <p class="subtitle">Créez votre compte gratuitement</p>
+
+      <form method="post">
+        {% csrf_token %} {% if form.errors %}
+        <p style="color: var(--error); margin-bottom: 1rem">
+          Veuillez corriger les erreurs ci-dessous.
+        </p>
+        {% endif %}
+
+        <div>
+          <label for="id_username">Nom d'utilisateur</label>
+          {{ form.username }} {{ form.username.errors }}
+        </div>
+
+        <div>
+          <label for="id_email">Adresse e-mail</label>
+          {{ form.email }} {{ form.email.errors }}
+        </div>
+
+        <div>
+          <label for="id_password1">Mot de passe</label>
+          {{ form.password1 }} {{ form.password1.errors }}
+        </div>
+
+        <div>
+          <label for="id_password2">Confirmer le mot de passe</label>
+          {{ form.password2 }} {{ form.password2.errors }}
+        </div>
+
+        <button type="submit">S'inscrire</button>
+      </form>
+
+      <div class="links">
+        <p>Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a></p>
+      </div>
+    </div>
+  </body>
+</html>

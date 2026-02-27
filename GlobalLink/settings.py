@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     'accounts',
     'interactions',
     'posts',
-]
+    ]
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+LOGIN_REDIRECT_URL = 'fils_actualite'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

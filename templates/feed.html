@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fil d'actualité - GlobalLink</title>
+
+    <!-- Font Awesome pour les icônes -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --bg: #f9fafb;
+        --card: #ffffff;
+        --text: #111827;
+        --gray: #6b7280;
+        --border: #e5e7eb;
+        --like: #ef4444;
+        --notify: #f87171;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .top-bar {
+        background: white;
+        border-bottom: 1px solid var(--border);
+        padding: 0.8rem 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .top-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      .icons {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .icon-btn {
+        font-size: 1.4rem;
+        color: var(--gray);
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+      }
+      .icon-btn:hover {
+        color: var(--primary);
+      }
+      .badge {
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        background: var(--notify);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: bold;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .avatar-top {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+      }
+      .container {
+        max-width: 700px;
+        margin: 1rem auto;
+        padding: 0 1rem;
+      }
+      .publish-box {
+        background: white;
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      textarea {
+        width: 100%;
+        min-height: 80px;
+        border: 1px solid var(--border);
+        border-radius: 0.8rem;
+        padding: 0.8rem;
+        resize: vertical;
+        font-size: 1rem;
+        margin-bottom: 0.6rem;
+      }
+      .btn-publish {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.7rem 1.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        cursor: pointer;
+        float: right;
+      }
+      .post {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.2rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .post-header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+      }
+      .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+      }
+      .username {
+        font-weight: 600;
+      }
+      .time {
+        color: var(--gray);
+        font-size: 0.85rem;
+      }
+      .post-content {
+        margin: 0.5rem 0 1rem;
+        white-space: pre-wrap;
+      }
+      .post-actions {
+        display: flex;
+        gap: 1.8rem;
+        color: var(--gray);
+        font-size: 0.95rem;
+      }
+      .action {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .action:hover {
+        color: var(--primary);
+      }
+      .liked {
+        color: var(--like);
+      }
+      .pagination {
+        text-align: center;
+        margin: 2rem 0;
+        color: var(--gray);
+      }
+      .pagination a {
+        margin: 0 0.6rem;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      .message {
+        padding: 1rem;
+        border-radius: 0.6rem;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .success {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .error {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="container header">
+        <a href="{% url 'fils_actualite' %}" class="logo">GlobalLink</a>
+
+        <div class="icons">
+          <!-- Profil -->
+          <a href="{% url 'profile' %}" class="icon-btn">
+            <div class="avatar-top">{{ user.username|slice:":1"|upper }}</div>
+          </a>
+
+          <!-- Notifications -->
+          <span class="icon-btn">
+            <i class="fas fa-bell"></i>
+            <span class="badge">3</span>
+          </span>
+
+          <!-- Déconnexion -->
+          <a href="{% url 'logout' %}" class="icon-btn">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      {% if messages %} {% for message in messages %}
+      <div
+        class="message {% if message.tags == 'success' %}success{% else %}error{% endif %}"
+      >
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %}
+
+      <!-- Barre de publication -->
+      <form method="post" class="publish-box">
+        {% csrf_token %}
+        <textarea
+          name="content"
+          placeholder="Écrivez votre publication ici..."
+          required
+        ></textarea>
+        <button type="submit" class="btn-publish">Publier</button>
+      </form>
+
+      <!-- Liste des posts -->
+      {% for post in page_obj %}
+      <div class="post">
+        <div class="post-header">
+          <div class="avatar">{{ post.author.username|slice:":1"|upper }}</div>
+          <div>
+            <div class="username">{{ post.author.username }}</div>
+            <div class="time">
+              {{ post.created_at|timesince }} · <a href="#">Voir profil</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-content">{{ post.content|linebreaks }}</div>
+
+        <div class="post-actions">
+          <span
+            class="action like-btn {% if post.is_liked %}liked{% endif %}"
+            data-post-id="{{ post.id }}"
+            title="Like / Unlike"
+          >
+            <i class="fas fa-heart"></i> {{ post.like_set.count }}
+          </span>
+
+          <span
+            class="action comment-btn"
+            data-post-id="{{ post.id }}"
+            title="Commenter"
+          >
+            <i class="fas fa-comment"></i> Commenter
+          </span>
+
+          <span
+            class="action share-btn"
+            data-post-id="{{ post.id }}"
+            title="Partager"
+          >
+            <i class="fas fa-share-alt"></i> Partager
+          </span>
+        </div>
+
+        <!-- Formulaire commentaire (caché par défaut) -->
+        <form
+          class="comment-form"
+          style="display: none; margin-top: 1rem"
+          data-post-id="{{ post.id }}"
+        >
+          <textarea
+            name="content"
+            placeholder="Votre commentaire..."
+            required
+          ></textarea>
+          <button type="submit">Envoyer</button>
+        </form>
+
+        <!-- Zone où les commentaires s'affichent -->
+        <div class="comments-list" id="comments-{{ post.id }}">
+          <!-- Les commentaires seront ajoutés ici en JS -->
+        </div>
+      </div>
+      {% empty %}
+      <p style="text-align: center; color: var(--gray); padding: 2rem">
+        Aucune publication pour le moment...
+      </p>
+      {% endfor %}
+
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+        {% endif %} Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages
+        }} {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Suivant</a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <script>
+      // CSRF token (obligatoire pour POST en AJAX)
+      const csrfToken = "{{ csrf_token }}";
+
+      // Like / Unlike
+      document.querySelectorAll(".like-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const postId = this.dataset.postId;
+          fetch(`/posts/like/${postId}/`, {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": csrfToken,
+              "Content-Type": "application/json"
+            }
+          })
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.success) {
+                if (data.liked) {
+                  this.classList.add("liked");
+                } else {
+                  this.classList.remove("liked");
+                }
+                this.innerHTML = `<i class="fas fa-heart"></i> ${data.likes_count}`;
+              }
+            })
+            .catch((err) => console.error("Erreur like:", err));
+        });
+      });
+
+      // Commenter : afficher formulaire
+      document.querySelectorAll(".comment-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const postId = this.dataset.postId;
+          const form = document.querySelector(
+            `.comment-form[data-post-id="${postId}"]`
+          );
+          form.style.display = form.style.display === "none" ? "block" : "none";
+        });
+      });
+
+      // Envoyer commentaire
+      document.querySelectorAll(".comment-form").forEach((form) => {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const postId = this.dataset.postId;
+          const content = this.querySelector("textarea").value.trim();
+
+          if (!content) return;
+
+          fetch(`/posts/comment/add/${postId}/`, {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": csrfToken,
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `content=${encodeURIComponent(content)}`
+          })
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.success) {
+                const commentsDiv = document.getElementById(
+                  `comments-${postId}`
+                );
+                const newComment = document.createElement("div");
+                newComment.className = "comment";
+                newComment.style.margin = "0.8rem 0";
+                newComment.innerHTML = `
+                            <strong>${data.comment.author}</strong> 
+                            <small>(${data.comment.created_at})</small><br>
+                            ${data.comment.content}
+                        `;
+                commentsDiv.prepend(newComment);
+                this.querySelector("textarea").value = "";
+                this.style.display = "none";
+              } else {
+                alert(data.error || "Erreur");
+              }
+            })
+            .catch((err) => console.error("Erreur commentaire:", err));
+        });
+      });
+
+      // Partager : copie l'URL dans le presse-papiers
+      document.querySelectorAll(".share-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const postId = this.dataset.postId;
+          const url = `${window.location.origin}/feed/?post=${postId}`; // À adapter si page détail
+          navigator.clipboard
+            .writeText(url)
+            .then(() => {
+              alert("Lien du post copié !");
+            })
+            .catch((err) => {
+              alert("Erreur lors de la copie");
+              console.error(err);
+            });
+        });
+      });
+    </script>
+  </body>
+</html>
