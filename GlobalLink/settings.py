@@ -90,9 +90,9 @@ load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME') or 'GlobalLinkDB',
-        'USER': os.getenv('DB_USER') or 'root',
-        'PASSWORD': os.getenv('DB_PASSWORD') or '',
+        'NAME': os.getenv('DB_NAME') ,
+        'USER': os.getenv('DB_USER') ,
+        'PASSWORD': os.getenv('DB_PASSWORD') ,
         'HOST': os.getenv('DB_HOST') or '127.0.0.1',
         'PORT': os.getenv('DB_PORT') or '3306',
         'OPTIONS': {
@@ -111,7 +111,7 @@ if db_socket:
 
 
 # Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/6.0/topics/auth/passwords/
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -145,3 +145,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Media files (user uploaded content)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
