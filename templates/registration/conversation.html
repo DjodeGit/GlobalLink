@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation avec {{ friend.username }} - GlobalLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#6366f1",
+                        primarydark: "#4f46e5"
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .message-sent {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+            max-width: 75%;
+            margin-left: auto;
+        }
+        .message-received {
+            background: #f3f4f6;
+            color: #1f2937;
+            border-radius: 18px 18px 18px 4px;
+            max-width: 75%;
+        }
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.4s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .toast.show { opacity: 1; }
+        
+        @media (max-width: 768px) {
+            .message-sent, .message-received {
+                max-width: 85%;
+            }
+            .mobile-bottom-nav { 
+                display: flex; 
+                position: fixed; 
+                bottom: 0; 
+                left: 0; 
+                right: 0; 
+                background: white;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+                padding: 0.75rem;
+                justify-content: space-around;
+                z-index: 50;
+            }
+            .mobile-bottom-nav a {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+                font-size: 0.7rem;
+                color: #6b7280;
+            }
+            .mobile-bottom-nav a.active { color: #6366f1; }
+            .mobile-bottom-nav a i { font-size: 1.25rem; }
+            main { padding-bottom: 5rem; padding-top: 1rem; }
+            footer { padding: 0.75rem !important; }
+            footer form { gap: 0.5rem !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2 sm:gap-4">
+                <a href="{% url 'messages' %}" class="text-gray-700 hover:text-indigo-600 transition text-lg sm:text-xl p-1">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+                        {% if friend.photo %}
+                            <img src="{{ friend.photo.url }}" alt="{{ friend.username }}" class="w-full h-full rounded-full object-cover">
+                        {% else %}
+                            {{ friend.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-sm sm:text-base truncate">{{ friend.username }}</p>
+                        <a href="{% url 'profile' friend.id %}" class="text-xs sm:text-sm text-indigo-600 hover:underline">Voir le profil</a>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'fils_actualite' %}" class="text-gray-700 hover:text-indigo-600 transition text-xl p-1 hidden sm:block">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-2 sm:p-4">
+        <div class="max-w-3xl mx-auto space-y-2 sm:space-y-4" id="messages-container">
+            {% for message in messages %}
+            <div class="flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}">
+                <div class="{% if message.sender == user %}message-sent{% else %}message-received{% endif %} px-3 sm:px-4 py-2">
+                    <p class="text-sm sm:text-base">{{ message.content }}</p>
+                    <small class="text-xs opacity-75 block mt-1 {% if message.sender == user %}text-indigo-100{% else %}text-gray-500{% endif %}">
+                        {{ message.created_at|date:"d/m/Y H:i" }}
+                    </small>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-8 sm:py-10 text-gray-500">
+                <i class="fas fa-comments text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
+                <p class="text-sm sm:text-base">Aucun message. Commencez la conversation !</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 p-2 sm:p-4">
+        <form method="post" class="max-w-3xl mx-auto flex gap-2 sm:gap-3" id="message-form">
+            {% csrf_token %}
+            <input type="text" name="content" placeholder="Écrivez un message..." 
+                class="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm sm:text-base"
+                required autocomplete="off">
+            <button type="submit" title="Envoyer" aria-label="Envoyer" class="px-4 sm:px-6 py-2 sm:py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition">
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                <span class="sr-only">Envoyer</span>
+            </button>
+        </form>
+    </footer>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="{% url 'fils_actualite' %}">
+            <i class="fas fa-home"></i>
+            <span>Accueil</span>
+        </a>
+        <a href="{% url 'messages' %}" class="active">
+            <i class="fas fa-envelope"></i>
+            <span>Messages</span>
+        </a>
+        <a href="{% url 'received_friend_requests' %}">
+            <i class="fas fa-user-friends"></i>
+            <span>Amis</span>
+        </a>
+        <a href="{% url 'my_profile' %}">
+            <i class="fas fa-user"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        // Scroll to bottom on load
+        window.onload = function() {
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+        
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.className = `toast show ${type === "success" ? "bg-green-600" : "bg-red-600"}`;
+            setTimeout(() => toast.classList.remove("show"), 3500);
+        }
+    </script>
+</body>
+</html>
