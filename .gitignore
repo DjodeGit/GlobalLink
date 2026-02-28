@@ -1,7 +1,50 @@
+
+# Python / Django
 virtuel/
+
 __pycache__/
 *.py[cod]
+*.pyc
+*.pyo
+*.pyd
 *$py.class
 *.so
+GlobalLink/__pycache__/
+# Environnements virtuels (ajoute tous les noms courants)
+venv/
+env/
+.venv/
+virtuel/            
+
+# Fichiers sensibles / configuration locale
+.env
+.env.*
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Bases de données locales (SQLite)
+db.sqlite3
+db.sqlite3-journal
+
+# Tests et coverage
 .pytest_cache/
 .coverage
+
+coverage.xml
+htmlcov/
+*.cover
+
+# Fichiers d’éditeurs / OS / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Logs et temporaires
+*.log
+

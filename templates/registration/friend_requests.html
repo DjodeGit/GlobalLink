@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demandes d'ami reçues - GlobalLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#6366f1",
+              primarydark: "#4f46e5"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .toast {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.4s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      .toast.show { opacity: 1; }
+      
+      @media (max-width: 768px) {
+        .mobile-bottom-nav { 
+          display: flex; 
+          position: fixed; 
+          bottom: 0; 
+          left: 0; 
+          right: 0; 
+          background: white;
+          box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+          padding: 0.75rem;
+          justify-content: space-around;
+          z-index: 50;
+        }
+        .mobile-bottom-nav a {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+          font-size: 0.7rem;
+          color: #6b7280;
+        }
+        .mobile-bottom-nav a.active { color: #6366f1; }
+        .mobile-bottom-nav a i { font-size: 1.25rem; }
+        main { padding-bottom: 5rem; }
+        header .max-w-2xl { padding: 0 0.75rem; }
+        main { padding: 1.5rem 0.75rem; }
+      }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div class="max-w-2xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between">
+        <a href="{% url 'fils_actualite' %}" class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          GlobalLink
+        </a>
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <a href="{% url 'my_profile' %}" class="flex items-center gap-2 hover:scale-105 transition">
+            <div class="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">
+              {{ user.username|slice:":1"|upper }}
+            </div>
+          </a>
+          <a href="{% url 'fils_actualite' %}" class="text-gray-700 hover:text-indigo-600 transition text-xl">
+            <i class="fas fa-home"></i>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-3 sm:px-4 py-6 sm:py-10">
+        <div class="flex items-center justify-between mb-4 sm:mb-8">
+            <h1 class="text-lg sm:text-3xl font-bold text-gray-800">
+                <i class="fas fa-user-friends mr-2 text-indigo-600"></i>
+                <span class="hidden sm:inline">Demandes d'ami reçues</span>
+                <span class="sm:hidden">Amis</span>
+            </h1>
+            <a href="{% url 'fils_actualite' %}" class="text-indigo-600 hover:underline text-sm sm:text-base">
+                <i class="fas fa-arrow-left mr-1"></i> <span class="hidden sm:inline">Retour</span>
+            </a>
+        </div>
+
+        {% if received_requests %}
+        <div class="space-y-3 sm:space-y-4">
+            {% for request in received_requests %}
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 flex items-center justify-between" id="request-{{ request.id }}">
+                <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                    <a href="{% url 'profile' request.from_user.id %}">
+                        <div class="w-12 sm:w-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0">
+                            {% if request.from_user.photo %}
+                                <img src="{{ request.from_user.photo.url }}" alt="{{ request.from_user.username }}" class="w-full h-full rounded-full object-cover">
+                            {% else %}
+                                {{ request.from_user.username|slice:":1"|upper }}
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class="min-w-0 flex-1">
+                        <a href="{% url 'profile' request.from_user.id %}" class="font-bold text-sm sm:text-lg text-gray-800 hover:text-indigo-600 block truncate">
+                            {{ request.from_user.username }}
+                        </a>
+                        <p class="text-xs sm:text-sm text-gray-500 truncate">
+                            {% if request.from_user.first_name or request.from_user.last_name %}
+                                {{ request.from_user.first_name }} {{ request.from_user.last_name }}
+                            {% else %}
+                                Pas d'informations
+                            {% endif %}
+                        </p>
+                        <p class="text-xs text-gray-400 hidden sm:block">{{ request.created_at|timesince }}</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 ml-2 flex-shrink-0">
+                    <button class="accept-friend-btn px-3 sm:px-4 py-2 bg-green-600 text-white rounded-full text-xs sm:text-sm hover:bg-green-700 transition font-medium" data-request-id="{{ request.id }}">
+                        <i class="fas fa-check mr-1"></i> <span class="hidden sm:inline">Accepter</span>
+                    </button>
+                    <button class="reject-friend-btn px-3 sm:px-4 py-2 bg-red-500 text-white rounded-full text-xs sm:text-sm hover:bg-red-600 transition font-medium" data-request-id="{{ request.id }}">
+                        <i class="fas fa-times mr-1"></i> <span class="hidden sm:inline">Rejeter</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-10 text-center">
+            <div class="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-user-friends text-3xl sm:text-4xl text-gray-400"></i>
+            </div>
+            <p class="text-gray-600 text-base sm:text-lg">Vous n'avez aucune demande d'ami</p>
+            <a href="{% url 'search_users' %}" class="inline-block mt-4 text-indigo-600 hover:underline text-sm sm:text-base">
+                Rechercher des utilisateurs
+            </a>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="{% url 'fils_actualite' %}">
+            <i class="fas fa-home"></i>
+            <span>Accueil</span>
+        </a>
+        <a href="{% url 'messages' %}">
+            <i class="fas fa-envelope"></i>
+            <span>Messages</span>
+        </a>
+        <a href="{% url 'received_friend_requests' %}" class="active">
+            <i class="fas fa-user-friends"></i>
+            <span>Amis</span>
+        </a>
+        <a href="{% url 'my_profile' %}">
+            <i class="fas fa-user"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        const csrfToken = "{{ csrf_token }}";
+
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.className = `toast show ${type === "success" ? "bg-green-600" : "bg-red-600"}`;
+            setTimeout(() => toast.classList.remove("show"), 3500);
+        }
+
+        // Accepter une demande d'ami
+        document.querySelectorAll('.accept-friend-btn').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const requestId = btn.dataset.requestId;
+                try {
+                    const res = await fetch(`/accounts/friend/accept/${requestId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Demande d\'ami acceptée !');
+                        btn.closest('#request-' + requestId).style.opacity = '0';
+                        setTimeout(() => {
+                            btn.closest('#request-' + requestId).remove();
+                            if (document.querySelectorAll('.accept-friend-btn, .reject-friend-btn').length === 0) {
+                                location.reload();
+                            }
+                        }, 300);
+                    } else {
+                        showToast(data.error || 'Erreur', 'error');
+                    }
+                } catch (err) {
+                    showToast('Erreur réseau', 'error');
+                }
+            });
+        });
+
+        // Rejeter une demande d'ami
+        document.querySelectorAll('.reject-friend-btn').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const requestId = btn.dataset.requestId;
+                try {
+                    const res = await fetch(`/accounts/friend/reject/${requestId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Demande d\'ami refusée');
+                        btn.closest('#request-' + requestId).style.opacity = '0';
+                        setTimeout(() => {
+                            btn.closest('#request-' + requestId).remove();
+                            if (document.querySelectorAll('.accept-friend-btn, .reject-friend-btn').length === 0) {
+                                location.reload();
+                            }
+                        }, 300);
+                    } else {
+                        showToast(data.error || 'Erreur', 'error');
+                    }
+                } catch (err) {
+                    showToast('Erreur réseau', 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
