@@ -9,7 +9,7 @@ __pycache__/
 *.pyd
 *$py.class
 *.so
-
+GlobalLink/__pycache__/
 # Environnements virtuels (ajoute tous les noms courants)
 venv/
 env/
