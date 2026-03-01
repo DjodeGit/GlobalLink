@@ -1,222 +1,440 @@
 <!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fil d'actualité - GlobalLink</title>
+<html lang="fr" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - {{ profile_user.get_full_name|default:profile_user.username }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-      :root {
-        --primary: #6366f1;
-        --primary-dark: #4f46e5;
-        --bg: #f9fafb;
-        --card-bg: #ffffff;
-        --text: #111827;
-        --text-light: #6b7280;
-        --border: #e5e7eb;
-        --like: #ef4444;
-      }
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        line-height: 1.5;
-      }
-      .container {
-        max-width: 680px;
-        margin: 0 auto;
-        padding: 1rem;
-      }
-      header {
-        background: white;
-        border-bottom: 1px solid var(--border);
-        padding: 1rem;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      }
-      .header-content {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-      .logo {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: var(--primary);
-        text-decoration: none;
-      }
-      .publish-box {
-        background: var(--card-bg);
-        border-radius: 1rem;
-        padding: 1rem;
-        margin: 1.5rem 0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-      .publish-input {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        border: 1px solid var(--border);
-        border-radius: 9999px;
-        font-size: 1rem;
-        resize: none;
-        outline: none;
-      }
-      .publish-input:focus {
-        border-color: var(--primary);
-      }
-      .publish-actions {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 0.8rem;
-      }
-      .btn-publish {
-        background: var(--primary);
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        padding-bottom: 70px;
+    }
+    .profile-card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        overflow: hidden;
+        margin: 1.5rem auto 1rem;
+        max-width: 900px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        border: none;
-        padding: 0.7rem 1.8rem;
-        border-radius: 9999px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .btn-publish:hover {
-        background: var(--primary-dark);
-      }
-      .post {
-        background: var(--card-bg);
-        border-radius: 1rem;
-        padding: 1.2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-      .post-header {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        margin-bottom: 1rem;
-      }
-      .avatar {
-        width: 48px;
-        height: 48px;
+        padding: 2rem 1rem 1.5rem;
+        text-align: center;
+    }
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
-        background: #e2e8f0;
+        background: rgba(255,255,255,0.25);
+        margin: 0 auto 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: white;
-      }
-      .post-info {
-        flex: 1;
-      }
-      .username {
+        font-size: 2.5rem;
         font-weight: 600;
-        margin: 0;
-      }
-      .time {
-        font-size: 0.85rem;
-        color: var(--text-light);
-      }
-      .post-content {
-        margin-bottom: 1rem;
-        white-space: pre-wrap;
-      }
-      .post-actions {
+        color: white;
+        border: 4px solid rgba(255,255,255,0.4);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .stats {
         display: flex;
+        justify-content: center;
         gap: 1.5rem;
-        color: var(--text-light);
-        font-size: 0.95rem;
-      }
-      .action-btn {
+        margin-top: 1rem;
+    }
+    .stat-item {
+        text-align: center;
+    }
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.85;
+    }
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+    }
+    .nav-tabs .nav-link {
+        color: #495057;
+        padding: 0.6rem 1rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    .nav-tabs .nav-link.active {
+        color: #667eea;
+        border-color: transparent transparent #667eea transparent;
+        background: none;
+    }
+    .post-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .post-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    .post-header {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        margin-bottom: 0.75rem;
+    }
+    .post-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #667eea;
+        color: white;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .post-content {
+        font-size: 0.95rem;
+    }
+    .like-btn {
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 1rem;
         cursor: pointer;
-        transition: color 0.2s;
-      }
-      .action-btn:hover {
-        color: var(--primary);
-      }
-      .liked {
-        color: var(--like);
-      }
-      .pagination {
-        text-align: center;
-        margin: 2rem 0;
-        color: var(--text-light);
-      }
-      .pagination a {
-        margin: 0 0.5rem;
-        color: var(--primary);
-        text-decoration: none;
-      }
-      .pagination a:hover {
-        text-decoration: underline;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div class="container header-content">
-        <a href="{% url 'home' %}" class="logo">GlobalLink</a>
-        <!-- Ici tu pourras ajouter avatar utilisateur + menu plus tard -->
-      </div>
-    </header>
-
+        transition: all 0.25s;
+        padding: 0.25rem 0.5rem;
+    }
+    .like-btn:hover, .like-btn.liked {
+        color: #dc3545;
+        transform: scale(1.15);
+    }
+    .pagination .page-link {
+        color: #667eea;
+        border-radius: 8px;
+        margin: 0 4px;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    .pagination .page-item.active .page-link {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+    .liker-username {
+        color: #667eea;
+    }
+    .toast {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.4s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .toast.show { opacity: 1; }
+    
+    /* Mobile Navigation */
+    .mobile-nav {
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        body { padding-bottom: 60px; }
+        .mobile-nav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            padding: 0.6rem;
+            justify-content: space-around;
+            z-index: 50;
+        }
+        .mobile-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            font-size: 0.65rem;
+            color: #6b7280;
+            text-decoration: none;
+        }
+        .mobile-nav a.active { color: #667eea; }
+        .mobile-nav a i { font-size: 1.1rem; }
+    }
+    
+    @media (max-width: 480px) {
+        .profile-header h2 {
+            font-size: 1.25rem;
+        }
+        .profile-header p {
+            font-size: 0.9rem;
+        }
+        .btn {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem;
+        }
+    }
+</style>
+</head>
+<body>
     <div class="container">
-      <!-- Barre de publication -->
-      <div class="publish-box">
-        <textarea
-          class="publish-input"
-          rows="2"
-          placeholder="Écrivez votre publication ici..."
-        ></textarea>
-        <div class="publish-actions">
-          <button class="btn-publish">Publier</button>
-        </div>
-      </div>
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    {% if profile_user.photo %}
+                        <img src="{{ profile_user.photo.url }}" alt="Photo de {{ profile_user.username }}">
+                    {% else %}
+                        {{ profile_user.first_name|slice:":1"|default:"U"|upper }}{{ profile_user.last_name|slice:":1"|default:"" }}
+                    {% endif %}
+                </div>
+                <h2 class="mb-1">{{ profile_user.get_full_name|default:profile_user.username }}</h2>
+                <p class="mb-2">@{{ profile_user.username }}</p>
+                {% if request.user == profile_user %}
+                <a href="{% url 'profile_edit' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                {% else %}
+                <div class="mt-2">
+                    {% if is_friend %}
+                    <a href="{% url 'conversation' profile_user.id %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-envelope"></i> Message
+                    </a>
+                    {% else %}
+                        {% if has_received_request %}
+                        <span class="badge bg-secondary"><i class="fas fa-clock"></i> En attente</span>
+                        {% elif has_pending_request %}
+                        <span class="badge bg-warning"><i class="fas fa-clock"></i> Demande envoyée</span>
+                        {% else %}
+                        <button class="send-friend-btn btn btn-success btn-sm" data-user-id="{{ profile_user.id }}">
+                            <i class="fas fa-user-plus"></i> Ajouter
+                        </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ total_posts }}</span>
+                        <span class="stat-label">Posts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ total_likes_received }}</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                </div>
+            </div>
 
-      <div class="post">
-        <div class="post-header">
-          <div class="avatar">JD</div>
-          <div class="post-info">
-            <p class="username">JaneDoe</p>
-            <p class="time">il y a 5 minutes</p>
-          </div>
-        </div>
-        <div class="post-content">
-          J’ai démarré mon nouveau projet #pattismant aujourd’hui ! Hâte de le
-          partager avec vous tous 😍 #codinglife #sideproject
-        </div>
-        <div class="post-actions">
-          <span class="action-btn liked">♥ 12 Likes</span>
-          <span class="action-btn">Voir le profil</span>
-        </div>
-      </div>
+            <div class="p-3">
+                <ul class="nav nav-tabs mb-3" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if active_tab == 'publications' %}active{% endif %}" id="publications-tab" data-bs-toggle="tab" data-bs-target="#publications" type="button" role="tab">Publications</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if active_tab == 'informations' %}active{% endif %}" id="informations-tab" data-bs-toggle="tab" data-bs-target="#informations" type="button" role="tab">Infos</button>
+                    </li>
+                </ul>
 
-      <div class="post">
-        <div class="post-header">
-          <div class="avatar">SI</div>
-          <div class="post-info">
-            <p class="username">SuperIstiar</p>
-            <p class="time">il y a 8 minutes</p>
-          </div>
-        </div>
-        <div class="post-content">
-          Super présentation de l'équipe aujourd'hui ! On avance bien sur les
-          nouvelles fonctionnalités 🚀 #teamwork #developers
-        </div>
-        <div class="post-actions">
-          <span class="action-btn">♥ 8 Likes</span>
-          <span class="action-btn">Commenter</span>
-        </div>
-      </div>
+                <div class="tab-content" id="profileTabsContent">
+                    <div class="tab-pane fade {% if active_tab == 'publications' %}show active{% endif %}" id="publications" role="tabpanel">
+                        {% if posts %}
+                            {% for post in posts %}
+                                <div class="post-card">
+                                    <div class="post-header">
+                                        <div class="post-avatar">
+                                            {{ post.author.first_name|default:"U"|slice:1 }}{{ post.author.last_name|default:""|slice:1 }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ post.author.get_full_name|default:post.author.username }}</strong>
+                                            <small class="text-muted d-block">@{{ post.author.username }}</small>
+                                            <small class="text-muted">{{ post.created_at|date:"d/m/Y H:i" }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="post-content mb-2">
+                                        {{ post.content|linebreaks }}
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                        <button class="like-btn {% if post.is_liked %}liked{% endif %}" 
+                                            id="like-btn-{{ post.id }}" 
+                                            data-post-id="{{ post.id }}">
+                                            ♥ <span id="likes-count-{{ post.id }}">{{ post.like_set.count }}</span>
+                                        </button>
+                                        <div class="text-small text-muted" id="post-likers-{{ post.id }}">
+                                            {% if post.likers %}
+                                                {% for liker in post.likers %}
+                                                    <span class="liker-username">@{{ liker.user__username }}</span>{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                Aucun like
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
 
-      <!-- Pagination -->
-      <div class="pagination">Précédent 1 2 3 Suivant</div>
+                            {% if page_obj.has_other_pages %}
+                                <nav aria-label="Pagination">
+                                    <ul class="pagination justify-content-center flex-wrap">
+                                        {% if page_obj.has_previous %}
+                                        <li class="page-item"><a class="page-link" href="?{% if active_tab != 'publications' %}tab={{ active_tab }}&{% endif %}page={{ page_obj.previous_page_number }}">Précédent</a></li>
+                                        {% endif %}
+                                        {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                        {% elif num >= page_obj.number|add:-2 and num < page_obj.number|add:3 %}
+                                        <li class="page-item"><a class="page-link" href="?{% if active_tab != 'publications' %}tab={{ active_tab }}&{% endif %}page={{ num }}">{{ num }}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item"><a class="page-link" href="?{% if active_tab != 'publications' %}tab={{ active_tab }}&{% endif %}page={{ page_obj.next_page_number }}">Suivant</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-center text-muted py-4">Aucune publication pour le moment.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="tab-pane fade {% if active_tab == 'informations' %}show active{% endif %}" id="informations" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <h5 class="border-bottom pb-2">Informations personnelles</h5>
+                                <p class="mb-1"><strong>Nom:</strong> {{ profile_user.get_full_name|default:"Non spécifié" }}</p>
+                                <p class="mb-1"><strong>Username:</strong> {{ profile_user.username }}</p>
+                                <p class="mb-1"><strong>Email:</strong> {{ profile_user.email }}</p>
+                                <p><strong>Membre depuis:</strong> {{ profile_user.date_joined|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </body>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="{% url 'fils_actualite' %}">
+            <i class="fas fa-home"></i>
+            <span>Accueil</span>
+        </a>
+        <a href="{% url 'messages' %}">
+            <i class="fas fa-envelope"></i>
+            <span>Messages</span>
+        </a>
+        <a href="{% url 'received_friend_requests' %}">
+            <i class="fas fa-user-friends"></i>
+            <span>Amis</span>
+        </a>
+        <a href="{% url 'my_profile' %}" class="active">
+            <i class="fas fa-user"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const csrfToken = "{{ csrf_token }}";
+        
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.className = `toast show ${type === "success" ? "bg-success" : "bg-danger"}`;
+            setTimeout(() => toast.classList.remove("show"), 3500);
+        }
+
+        // Send friend request
+        document.querySelectorAll(".send-friend-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+                const userId = btn.dataset.userId;
+                try {
+                    const res = await fetch(`/accounts/friend/request/${userId}/`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": csrfToken,
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast(data.message);
+                        btn.outerHTML = '<span class="badge bg-warning"><i class="fas fa-clock"></i> Demande envoyée</span>';
+                    } else {
+                        showToast(data.error, "error");
+                    }
+                } catch (err) {
+                    showToast("Erreur réseau", "error");
+                }
+            });
+        });
+
+        // Like pour les posts
+        document.querySelectorAll(".like-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+                const postId = btn.dataset.postId;
+                try {
+                    const res = await fetch(`/posts/like/${postId}/`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": csrfToken,
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const countSpan = document.getElementById(`likes-count-${postId}`);
+                        countSpan.textContent = data.likes_count;
+                        
+                        if (data.liked) {
+                            btn.classList.add("liked");
+                        } else {
+                            btn.classList.remove("liked");
+                        }
+                        
+                        const likersDiv = document.getElementById(`post-likers-${postId}`);
+                        if (data.likers && data.likers.length > 0) {
+                            const likersHtml = data.likers.map((l, idx) => 
+                                `<span class="liker-username">@${l.user__username}</span>${idx < data.likers.length - 1 ? ', ' : ''}`
+                            ).join('');
+                            likersDiv.innerHTML = likersHtml;
+                        } else {
+                            likersDiv.innerHTML = 'Aucun like';
+                        }
+                    }
+                } catch (err) {
+                    console.error("Like erreur:", err);
+                }
+            });
+        });
+    </script>
+</body>
 </html>

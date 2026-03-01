@@ -1,18 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr" class="bg-gray-50">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fil d'actualité - GlobalLink</title>
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <script>
       tailwind.config = {
@@ -28,30 +22,15 @@
     </script>
 
     <style>
-      .heart-beat {
-        animation: beat 0.5s ease-in-out;
-      }
+      .heart-beat { animation: beat 0.5s ease-in-out; }
       @keyframes beat {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.4);
-        }
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.4); }
       }
-      .comment-slide {
-        animation: slideIn 0.4s ease-out;
-      }
+      .comment-slide { animation: slideIn 0.4s ease-out; }
       @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateY(15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       .toast {
         position: fixed;
@@ -66,84 +45,164 @@
         transition: opacity 0.4s;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       }
-      .toast.show {
-        opacity: 1;
+      .toast.show { opacity: 1; }
+      .notification-dropdown, .search-dropdown {
+        position: absolute;
+        z-index: 100;
+        display: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      }
+      .notification-dropdown { right: 0; top: 100%; width: 380px; max-height: 500px; overflow-y: auto; }
+      .search-dropdown { left: 0; top: 100%; width: 100%; max-height: 400px; overflow-y: auto; }
+      .notification-dropdown.show, .search-dropdown.show { display: block; }
+      
+      /* Mobile Navigation - Bottom Bar */
+      .mobile-bottom-nav { 
+        display: none; 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        background: white;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        padding: 0.75rem;
+        justify-content: space-around;
+        z-index: 50;
+      }
+      .mobile-bottom-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.65rem;
+        color: #6b7280;
+        text-decoration: none;
+      }
+      .mobile-bottom-nav a.active { color: #6366f1; }
+      .mobile-bottom-nav a i { font-size: 1.25rem; }
+      
+      /* Mobile search */
+      .mobile-search-bar { display: none; }
+      
+      @media (max-width: 768px) {
+        .desktop-header-nav { display: none !important; }
+        .mobile-bottom-nav { display: flex; }
+        .mobile-search-bar { display: block; }
+        main { padding-bottom: 5rem; }
+        
+        .notification-dropdown {
+          right: -20px;
+          width: calc(100vw - 40px);
+          max-height: 60vh;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        header .max-w-5xl { padding: 0 0.75rem; }
+        main { padding: 1rem 0.75rem; }
+        .post-card { padding: 1rem; }
       }
     </style>
-  </head>
-  <body class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+</head>
+<body class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
     <!-- Barre supérieure -->
-    <header
-      class="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-opacity-95"
-    >
-      <div
-        class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between"
-      >
-        <a
-          href="{% url 'fils_actualite' %}"
-          class="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
-        >
+    <header class="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-opacity-95">
+      <div class="max-w-5xl mx-auto px-2 sm:px-4 py-3 flex items-center justify-between">
+        <a href="{% url 'fils_actualite' %}" class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
           GlobalLink
         </a>
 
-        <div class="flex items-center space-x-8">
-          <a
-            href="{% url 'profile' %}"
-            class="flex items-center gap-3 hover:scale-105 transition"
-          >
-            <div
-              class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg"
-            >
+        <!-- Desktop Navigation -->
+        <div class="desktop-header-nav flex items-center space-x-4 lg:space-x-6">
+          <!-- Barre de recherche -->
+          <div class="relative hidden md:block">
+            <input type="text" id="search-input" placeholder="Rechercher..." 
+              class="w-40 lg:w-64 px-3 py-2 pl-9 text-sm rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+              autocomplete="off">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+            <div id="search-results" class="search-dropdown bg-white rounded-xl mt-2"></div>
+          </div>
+
+          <a href="{% url 'my_profile' %}" class="flex items-center gap-2 hover:scale-105 transition">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">
               {{ user.username|slice:":1"|upper }}
             </div>
+            <span class="hidden lg:inline text-sm text-gray-700">{{ user.username }}</span>
           </a>
 
-          <button
-            class="relative text-gray-700 hover:text-indigo-600 transition text-2xl"
-          >
-            <i class="fas fa-bell"></i>
-            <span
-              class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm"
-            >
-              3
+          <!-- Icône Messages -->
+          <a href="{% url 'messages' %}" class="relative text-gray-700 hover:text-indigo-600 transition text-xl sm:text-2xl">
+            <i class="fas fa-envelope"></i>
+            {% if user.unread_messages_count > 0 %}
+            <span id="message-badge" class="absolute -top-1 -right-2 bg-indigo-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+              {% if user.unread_messages_count > 9 %}9+{% else %}{{ user.unread_messages_count }}{% endif %}
             </span>
-          </button>
+            {% endif %}
+          </a>
 
-          <a
-            href="{% url 'logout' %}"
-            class="text-gray-700 hover:text-red-600 transition text-2xl"
-          >
+          <!-- Demandes d'ami reçues -->
+          <a href="{% url 'received_friend_requests' %}" class="relative text-gray-700 hover:text-indigo-600 transition text-xl sm:text-2xl">
+            <i class="fas fa-user-friends"></i>
+            {% if user.pending_friend_requests_count > 0 %}
+            <span class="absolute -top-1 -right-2 bg-green-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+              {% if user.pending_friend_requests_count > 9 %}9+{% else %}{{ user.pending_friend_requests_count }}{% endif %}
+            </span>
+            {% endif %}
+          </a>
+
+          <!-- Notifications -->
+          <div class="relative">
+            <button id="notification-btn" class="relative text-gray-700 hover:text-indigo-600 transition text-xl sm:text-2xl">
+              <i class="fas fa-bell"></i>
+              {% if user.unread_notifications_count > 0 %}
+              <span id="notification-badge" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                {% if user.unread_notifications_count > 9 %}9+{% else %}{{ user.unread_notifications_count }}{% endif %}
+              </span>
+              {% endif %}
+            </button>
+            <div id="notification-dropdown" class="notification-dropdown bg-white rounded-xl">
+              <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="font-bold text-lg">Notifications</h3>
+                <button id="mark-all-read" class="text-sm text-indigo-600 hover:underline">Tout marquer comme lu</button>
+              </div>
+              <div id="notifications-list" class="divide-y divide-gray-100">
+              </div>
+            </div>
+          </div>
+
+          <a href="{% url 'home' %}" class="text-gray-700 hover:text-red-600 transition text-xl sm:text-2xl" title="Déconnexion">
             <i class="fas fa-sign-out-alt"></i>
           </a>
         </div>
       </div>
+
+      <!-- Mobile Search Bar -->
+      <div class="mobile-search-bar px-4 pb-3">
+        <div class="relative">
+          <input type="text" id="mobile-search-input" placeholder="Rechercher..." 
+            class="w-full px-4 py-2 pl-10 text-sm rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+            autocomplete="off">
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          <div id="mobile-search-results" class="search-dropdown bg-white rounded-xl mt-2"></div>
+        </div>
+      </div>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 py-10">
-      <!-- Messages -->
-      {% if messages %} {% for message in messages %}
-      <div
-        class="mb-6 p-4 rounded-xl shadow {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500{% else %}bg-red-100 text-red-800 border-l-4 border-red-500{% endif %}"
-      >
-        {{ message }}
-      </div>
-      {% endfor %} {% endif %}
+    <main class="max-w-3xl mx-auto px-2 sm:px-4 py-6 sm:py-10">
+      {% if messages %}
+        {% for message in messages %}
+        <div class="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl shadow {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500{% else %}bg-red-100 text-red-800 border-l-4 border-red-500{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
 
       <!-- Barre publication -->
-      <form method="post" class="bg-white rounded-2xl shadow-2xl p-6 mb-10">
+      <form method="post" class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 mb-8 sm:mb-10">
         {% csrf_token %}
-        <textarea
-          name="content"
-          rows="3"
-          class="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none text-lg placeholder-gray-500"
-          placeholder="Quoi de neuf, {{ user.username }} ?"
-          required
-        ></textarea>
-        <div class="flex justify-end mt-4">
-          <button
-            type="submit"
-            class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-10 py-3 rounded-full font-bold shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 transition-all transform hover:-translate-y-1"
-          >
+        <textarea name="content" rows="3" class="w-full border border-gray-200 rounded-xl p-3 sm:p-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none text-base sm:text-lg placeholder-gray-500" placeholder="Quoi de neuf, {{ user.username }} ?" required></textarea>
+        <div class="flex justify-end mt-3 sm:mt-4">
+          <button type="submit" class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 sm:px-10 py-2 sm:py-3 rounded-full font-bold shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 transition-all transform hover:-translate-y-1 text-sm sm:text-base">
             Publier
           </button>
         </div>
@@ -151,159 +210,433 @@
 
       <!-- Posts -->
       {% for post in page_obj %}
-      <article
-        class="bg-white rounded-2xl shadow-2xl mb-10 overflow-hidden transition-all hover:shadow-3xl"
-      >
-        <div class="p-6">
-          <div class="flex items-center gap-4 mb-4">
-            <div
-              class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md"
-            >
-              {{ post.author.username|slice:":1"|upper }}
-            </div>
-            <div>
-              <p class="font-bold text-xl">{{ post.author.username }}</p>
-              <p class="text-sm text-gray-500">
+      <article class="bg-white rounded-2xl shadow-2xl mb-6 sm:mb-8 overflow-hidden transition-all hover:shadow-3xl">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-start gap-3 sm:gap-4 mb-4">
+            <a href="{% url 'profile' post.author.id %}">
+              <div class="w-10 sm:w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
+                {{ post.author.username|slice:":1"|upper }}
+              </div>
+            </a>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-base sm:text-xl"><a href="{% url 'profile' post.author.id %}" class="hover:text-indigo-600">{{ post.author.username }}</a></p>
+              <p class="text-xs sm:text-sm text-gray-500">
                 {{ post.created_at|timesince }} ·
-                <a href="#" class="text-indigo-600 hover:underline">Profil</a>
+                <a href="{% url 'profile' post.author.id %}" class="text-indigo-600 hover:underline">Profil</a>
               </p>
             </div>
+            {% if post.author != user %}
+            <div class="ml-auto flex gap-2">
+              {% if post.author in user.friends %}
+              <a href="{% url 'conversation' post.author.id %}" class="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white rounded-full text-xs sm:text-sm hover:bg-indigo-700 transition">
+                <i class="fas fa-envelope mr-1"></i> <span class="hidden xs:inline">Message</span>
+              </a>
+              {% elif post.has_pending_request or post.has_received_request %}
+              <span class="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-600 rounded-full text-xs sm:text-sm">
+                <i class="fas fa-clock mr-1"></i> En attente
+              </span>
+              {% else %}
+              <button class="friend-request-btn px-3 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-full text-xs sm:text-sm hover:bg-green-700 transition" data-user-id="{{ post.author.id }}">
+                <i class="fas fa-user-plus mr-1"></i> <span class="hidden xs:inline">Ajouter</span>
+              </button>
+              {% endif %}
+            </div>
+            {% endif %}
           </div>
 
-          <div
-            class="text-gray-900 mb-6 leading-relaxed text-lg whitespace-pre-wrap"
-          >
+          <div class="text-gray-900 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-lg whitespace-pre-wrap">
             {{ post.content|linebreaks }}
           </div>
 
-          <div class="flex items-center gap-12 text-gray-600">
-            <button
-              class="like-btn flex items-center gap-2 text-xl transition-all {% if post.is_liked %}text-red-500 scale-110{% else %}hover:text-red-500{% endif %}"
-              data-post-id="{{ post.id }}"
-            >
+          <div class="flex items-center gap-6 sm:gap-12 text-gray-600 text-sm sm:text-base">
+            <button class="like-btn flex items-center gap-1.5 sm:gap-2 text-base sm:text-xl transition-all {% if post.is_liked %}text-red-500 scale-110{% else %}hover:text-red-500{% endif %}" data-post-id="{{ post.id }}">
               <i class="fas fa-heart"></i>
-              <span class="font-semibold">{{ post.like_set.count }}</span>
+              <span class="font-semibold" id="likes-count-{{ post.id }}">{{ post.like_set.count }}</span>
             </button>
+            
+            <div class="text-xs sm:text-sm text-gray-500 hidden sm:block" id="post-likers-{{ post.id }}">
+              {% if post.likers %}
+                {% for liker in post.likers %}
+                  <span class="liker-username">@{{ liker.user__username }}</span>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              {% else %}
+                Aucun like
+              {% endif %}
+            </div>
 
-            <button
-              class="comment-toggle flex items-center gap-2 text-xl hover:text-indigo-600 transition"
-              data-post-id="{{ post.id }}"
-            >
+            <button class="comment-toggle flex items-center gap-1.5 sm:gap-2 text-base sm:text-xl hover:text-indigo-600 transition" data-post-id="{{ post.id }}">
               <i class="fas fa-comment"></i>
-              <span class="font-semibold">Commenter</span>
+              <span class="font-semibold hidden sm:inline">Commenter</span>
             </button>
 
-            <button
-              class="share-btn flex items-center gap-2 text-xl hover:text-green-600 transition"
-              data-post-id="{{ post.id }}"
-              data-post-url="{{ request.build_absolute_uri }}?post={{ post.id }}"
-            >
+            <button class="share-btn flex items-center gap-1.5 sm:gap-2 text-base sm:text-xl hover:text-green-600 transition" data-post-id="{{ post.id }}" data-post-url="{{ request.build_absolute_uri }}?post={{ post.id }}">
               <i class="fas fa-share-alt"></i>
-              <span class="font-semibold">repartager</span>
+              <span class="font-semibold hidden sm:inline">Repartager</span>
             </button>
           </div>
 
-          <!-- Formulaire commentaire -->
-          <form
-            class="comment-form hidden mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200"
-            data-post-id="{{ post.id }}"
-          >
-            <textarea
-              name="content"
-              rows="2"
-              class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
-              placeholder="Votre commentaire..."
-              required
-            ></textarea>
-            <div class="flex justify-end mt-3">
-              <button
-                type="submit"
-                class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
-              >
-                Envoyer
-              </button>
+          <form class="comment-form hidden mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200" data-post-id="{{ post.id }}">
+            <textarea name="content" rows="2" class="w-full border border-gray-300 rounded-lg p-2 sm:p-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none text-sm" placeholder="Votre commentaire..." required></textarea>
+            <div class="flex justify-end mt-2 sm:mt-3">
+              <button type="submit" class="bg-indigo-600 text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg font-medium hover:bg-indigo-700 transition text-sm">Envoyer</button>
             </div>
           </form>
 
-          <!-- Commentaires -->
-          <div id="comments-{{ post.id }}" class="mt-5 space-y-4">
-            <!-- Commentaires ajoutés ici -->
+          <div id="comments-{{ post.id }}" class="mt-4 sm:mt-5 space-y-3 sm:space-y-4">
+            {% for comment in post.comments_list %}
+            <div class="bg-gray-50 p-3 sm:p-4 rounded-xl border-l-4 border-indigo-500" id="comment-{{ comment.id }}">
+              <div class="flex items-center justify-between mb-1 sm:mb-2">
+                <div class="flex items-center gap-2">
+                  <strong class="text-indigo-700 text-sm sm:text-base">{{ comment.author.username }}</strong>
+                  <small class="text-gray-500 text-xs sm:text-sm">{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                </div>
+                <button class="comment-like-btn text-xs sm:text-sm flex items-center gap-1 {% if comment.is_liked %}text-red-500{% else %}text-gray-500 hover:text-red-500{% endif %}" data-comment-id="{{ comment.id }}">
+                  <i class="fas fa-heart"></i>
+                  <span id="comment-likes-count-{{ comment.id }}">{{ comment.total_likes }}</span>
+                </button>
+              </div>
+              <p class="text-gray-800 text-sm sm:text-base">{{ comment.content }}</p>
+              <div class="text-xs text-gray-500 mt-1 sm:mt-2" id="comment-likers-{{ comment.id }}">
+                {% if comment.likers %}
+                  {% for liker in comment.likers %}
+                    <span class="liker-username">@{{ liker.user__username }}</span>{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
           </div>
         </div>
       </article>
       {% empty %}
-      <div class="text-center py-20 text-gray-600 text-xl font-medium">
-        Soyez le premier à partager quelque chose !
+      <div class="text-center py-16 sm:py-20 text-gray-600 text-base sm:text-xl font-medium">
+        <i class="fas fa-newspaper text-5xl sm:text-6xl mb-4 text-gray-300"></i>
+        <p>Soyez le premier à partager quelque chose !</p>
       </div>
       {% endfor %}
 
-      <!-- Pagination -->
       {% if page_obj.has_other_pages %}
-      <div class="flex justify-center gap-8 mt-12">
+      <div class="flex justify-center gap-3 sm:gap-8 mt-8 sm:mt-12">
         {% if page_obj.has_previous %}
-        <a
-          href="?page={{ page_obj.previous_page_number }}"
-          class="px-8 py-3 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium"
-        >
-          Précédent
-        </a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-5 sm:px-8 py-2 sm:py-3 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium text-sm sm:text-base">Précédent</a>
         {% endif %}
-        <span class="px-8 py-3 font-medium text-gray-700">
-          Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-        </span>
+        <span class="px-5 sm:px-8 py-2 sm:py-3 font-medium text-gray-700 text-sm sm:text-base">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-        <a
-          href="?page={{ page_obj.next_page_number }}"
-          class="px-8 py-3 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium"
-        >
-          Suivant
-        </a>
+        <a href="?page={{ page_obj.next_page_number }}" class="px-5 sm:px-8 py-2 sm:py-3 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium text-sm sm:text-base">Suivant</a>
         {% endif %}
       </div>
       {% endif %}
     </main>
 
-    <!-- Toast -->
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+      <a href="{% url 'fils_actualite' %}" class="active">
+        <i class="fas fa-home"></i>
+        <span>Accueil</span>
+      </a>
+      <a href="{% url 'messages' %}" class="relative">
+        <i class="fas fa-envelope"></i>
+        {% if user.unread_messages_count > 0 %}
+        <span class="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">{% if user.unread_messages_count > 9 %}9+{% else %}{{ user.unread_messages_count }}{% endif %}</span>
+        {% endif %}
+        <span>Messages</span>
+      </a>
+      <a href="{% url 'received_friend_requests' %}" class="relative">
+        <i class="fas fa-user-friends"></i>
+        {% if user.pending_friend_requests_count > 0 %}
+        <span class="absolute -top-1 -right-1 bg-green-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">{% if user.pending_friend_requests_count > 9 %}9+{% else %}{{ user.pending_friend_requests_count }}{% endif %}</span>
+        {% endif %}
+        <span>Amis</span>
+      </a>
+      <a href="{% url 'my_profile' %}">
+        <i class="fas fa-user"></i>
+        <span>Profil</span>
+      </a>
+    </nav>
+
     <div id="toast" class="toast hidden"></div>
 
     <script>
       const csrfToken = "{{ csrf_token }}";
       const toast = document.getElementById("toast");
+      const notificationBtn = document.getElementById("notification-btn");
+      const notificationDropdown = document.getElementById("notification-dropdown");
+      const notificationsList = document.getElementById("notifications-list");
+      const notificationBadge = document.getElementById("notification-badge");
+      const searchInput = document.getElementById("search-input");
+      const searchResults = document.getElementById("search-results");
+      const mobileSearchInput = document.getElementById("mobile-search-input");
+      const mobileSearchResults = document.getElementById("mobile-search-results");
 
       function showToast(msg, type = "success") {
         toast.textContent = msg;
-        toast.className = `toast show ${
-          type === "success" ? "bg-green-600" : "bg-red-600"
-        }`;
+        toast.className = `toast show ${type === "success" ? "bg-green-600" : "bg-red-600"}`;
         setTimeout(() => toast.classList.remove("show"), 3500);
       }
 
+      // Load notifications
+      async function loadNotifications() {
+        try {
+          const res = await fetch('/notifications/', {
+            headers: { 'X-CSRFToken': csrfToken }
+          });
+          const data = await res.json();
+          
+          if (notificationBadge) {
+            notificationBadge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
+            if (data.unread_count === 0) {
+              notificationBadge.classList.add('hidden');
+            } else {
+              notificationBadge.classList.remove('hidden');
+            }
+          }
+          
+          notificationsList.innerHTML = data.notifications.map(notif => `
+            <div class="p-3 sm:p-4 hover:bg-gray-50 cursor-pointer notification-item ${notif.is_read ? 'opacity-60' : 'bg-indigo-50'}" data-notification-id="${notif.id}" data-link="${notif.link}">
+              <div class="flex items-start gap-3">
+                <div class="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0 text-sm sm:text-base">
+                  ${notif.sender.charAt(0).toUpperCase()}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm">${notif.message}</p>
+                  <small class="text-gray-500">${notif.created_at}</small>
+                </div>
+                ${!notif.is_read ? '<div class="w-2 h-2 bg-indigo-600 rounded-full flex-shrink-0"></div>' : ''}
+              </div>
+            </div>
+          `).join('');
+          
+          if (data.notifications.length === 0) {
+            notificationsList.innerHTML = '<div class="p-4 text-center text-gray-500">Aucune notification</div>';
+          }
+        } catch (err) {
+          console.error('Erreur notifications:', err);
+        }
+      }
+
+      // Toggle notification dropdown
+      if (notificationBtn) {
+        notificationBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          notificationDropdown.classList.toggle('show');
+          searchResults.classList.remove('show');
+          if (notificationDropdown.classList.contains('show')) {
+            loadNotifications();
+          }
+        });
+      }
+
+      // Close dropdowns on click outside
+      document.addEventListener('click', (e) => {
+        if (notificationDropdown && !notificationDropdown.contains(e.target) && e.target !== notificationBtn) {
+          notificationDropdown.classList.remove('show');
+        }
+        if (searchResults && !searchResults.contains(e.target) && e.target !== searchInput) {
+          searchResults.classList.remove('show');
+        }
+        if (mobileSearchResults && !mobileSearchResults.contains(e.target) && e.target !== mobileSearchInput) {
+          mobileSearchResults.classList.remove('show');
+        }
+      });
+
+      // Mark notification as read and navigate
+      notificationsList.addEventListener('click', async (e) => {
+        const item = e.target.closest('.notification-item');
+        if (item) {
+          const notifId = item.dataset.notificationId;
+          const link = item.dataset.link;
+          
+          try {
+            await fetch(`/notifications/${notifId}/read/`, {
+              method: 'POST',
+              headers: { 'X-CSRFToken': csrfToken }
+            });
+          } catch (err) {}
+          
+          window.location.href = link;
+        }
+      });
+
+      // Mark all as read
+      document.getElementById('mark-all-read').addEventListener('click', async () => {
+        try {
+          await fetch('/notifications/read/all/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken }
+          });
+          loadNotifications();
+          showToast('Toutes les notifications marquées comme lues');
+        } catch (err) {}
+      });
+
+      // Search users - Desktop
+      let searchTimeout;
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          clearTimeout(searchTimeout);
+          const query = e.target.value.trim();
+          
+          if (query.length < 1) {
+            searchResults.classList.remove('show');
+            return;
+          }
+          
+          searchTimeout = setTimeout(async () => {
+            try {
+              const res = await fetch(`/accounts/search/?q=${encodeURIComponent(query)}`, {
+                headers: { 
+                  'X-CSRFToken': csrfToken,
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+              });
+              const data = await res.json();
+              
+              if (data.users && data.users.length > 0) {
+                searchResults.innerHTML = data.users.map(user => `
+                  <a href="/accounts/profile/${user.id}/" class="p-3 hover:bg-gray-50 flex items-center justify-between border-b border-gray-100 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                        ${user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p class="font-medium text-sm">${user.username}</p>
+                        ${user.first_name || user.last_name ? `<small class="text-gray-500">${user.first_name || ''} ${user.last_name || ''}</small>` : ''}
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      ${user.is_friend ? 
+                        `<a href="/messages/${user.id}/" class="px-3 py-1 bg-indigo-600 text-white rounded-full text-xs hover:bg-indigo-700"><i class="fas fa-envelope"></i></a>` :
+                        user.has_pending_request ?
+                        `<span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs">En attente</span>` :
+                        `<button class="friend-request-btn px-3 py-1 bg-green-600 text-white rounded-full text-xs hover:bg-green-700" data-user-id="${user.id}"><i class="fas fa-user-plus"></i></button>`
+                      }
+                    </div>
+                  </a>
+                `).join('');
+                searchResults.classList.add('show');
+              } else {
+                searchResults.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">Aucun utilisateur trouvé</div>';
+                searchResults.classList.add('show');
+              }
+            } catch (err) {
+              console.error('Erreur recherche:', err);
+            }
+          }, 300);
+        });
+      }
+
+      // Search users - Mobile
+      if (mobileSearchInput) {
+        mobileSearchInput.addEventListener('input', (e) => {
+          clearTimeout(searchTimeout);
+          const query = e.target.value.trim();
+          
+          if (query.length < 1) {
+            mobileSearchResults.classList.remove('show');
+            return;
+          }
+          
+          searchTimeout = setTimeout(async () => {
+            try {
+              const res = await fetch(`/accounts/search/?q=${encodeURIComponent(query)}`, {
+                headers: { 
+                  'X-CSRFToken': csrfToken,
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+              });
+              const data = await res.json();
+              
+              if (data.users && data.users.length > 0) {
+                mobileSearchResults.innerHTML = data.users.map(user => `
+                  <a href="/accounts/profile/${user.id}/" class="p-3 hover:bg-gray-50 flex items-center justify-between border-b border-gray-100 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                        ${user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p class="font-medium text-sm">${user.username}</p>
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      ${user.is_friend ? 
+                        `<a href="/messages/${user.id}/" class="px-3 py-1 bg-indigo-600 text-white rounded-full text-xs"><i class="fas fa-envelope"></i></a>` :
+                        user.has_pending_request ?
+                        `<span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs">En attente</span>` :
+                        `<button class="friend-request-btn px-3 py-1 bg-green-600 text-white rounded-full text-xs" data-user-id="${user.id}"><i class="fas fa-user-plus"></i></button>`
+                      }
+                    </div>
+                  </a>
+                `).join('');
+                mobileSearchResults.classList.add('show');
+              } else {
+                mobileSearchResults.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">Aucun utilisateur trouvé</div>';
+                mobileSearchResults.classList.add('show');
+              }
+            } catch (err) {
+              console.error('Erreur recherche:', err);
+            }
+          }, 300);
+        });
+      }
+
+      // Friend request button
+      document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.friend-request-btn');
+        if (!btn) return;
+        
+        const userId = btn.dataset.userId;
+        
+        try {
+          const res = await fetch(`/accounts/friend/request/${userId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          
+          if (data.success) {
+            showToast(data.message);
+            btn.outerHTML = '<span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-sm">En attente</span>';
+          } else {
+            showToast(data.error, 'error');
+          }
+        } catch (err) {
+          showToast('Erreur réseau', 'error');
+        }
+      });
+
       // Like
-      document.querySelectorAll(".like-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
+      document.querySelectorAll('.like-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
           const postId = btn.dataset.postId;
           try {
             const res = await fetch(`/posts/like/${postId}/`, {
-              method: "POST",
-              headers: {
-                "X-CSRFToken": csrfToken,
-                "Content-Type": "application/json"
-              }
+              method: 'POST',
+              headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' }
             });
             if (!res.ok) throw new Error(`Erreur ${res.status}`);
             const data = await res.json();
             if (data.success) {
               if (data.liked) {
-                btn.classList.add("liked");
-                btn.querySelector("i").classList.add("heart-beat");
-                setTimeout(
-                  () => btn.querySelector("i").classList.remove("heart-beat"),
-                  600
-                );
+                btn.classList.add('liked');
+                btn.querySelector('i').classList.add('heart-beat');
+                setTimeout(() => btn.querySelector('i').classList.remove('heart-beat'), 600);
               } else {
-                btn.classList.remove("liked");
+                btn.classList.remove('liked');
               }
-              btn.innerHTML = `<i class="fas fa-heart text-xl"></i> ${data.likes_count}`;
+              btn.innerHTML = `<i class="fas fa-heart"></i> <span class="font-semibold" id="likes-count-${postId}">${data.likes_count}</span>`;
+              
+              const likersDiv = document.getElementById(`post-likers-${postId}`);
+              if (data.likers && data.likers.length > 0) {
+                const likersHtml = data.likers.map((l, idx) => 
+                  `<span class="liker-username">@${l.user__username}</span>${idx < data.likers.length - 1 ? ', ' : ''}`
+                ).join('');
+                likersDiv.innerHTML = likersHtml;
+              } else {
+                likersDiv.innerHTML = 'Aucun like';
+              }
+              
               showToast(data.liked ? "J'aime !" : "Like retiré");
             }
           } catch (err) {
@@ -313,87 +646,126 @@
         });
       });
 
-      // Commentaire
-      document.querySelectorAll(".comment-toggle").forEach((btn) => {
-        btn.addEventListener("click", () => {
+      // Comment
+      document.querySelectorAll('.comment-toggle').forEach((btn) => {
+        btn.addEventListener('click', () => {
           const postId = btn.dataset.postId;
-          const form = document.querySelector(
-            `.comment-form[data-post-id="${postId}"]`
-          );
-          form.classList.toggle("hidden");
-          if (!form.classList.contains("hidden"))
-            form.querySelector("textarea").focus();
+          const form = document.querySelector(`.comment-form[data-post-id="${postId}"]`);
+          form.classList.toggle('hidden');
+          if (!form.classList.contains('hidden')) form.querySelector('textarea').focus();
         });
       });
 
-      document.querySelectorAll(".comment-form").forEach((form) => {
-        form.addEventListener("submit", async (e) => {
+      document.querySelectorAll('.comment-form').forEach((form) => {
+        form.addEventListener('submit', async (e) => {
           e.preventDefault();
           const postId = form.dataset.postId;
-          const textarea = form.querySelector("textarea");
+          const textarea = form.querySelector('textarea');
           const content = textarea.value.trim();
 
-          if (!content) return showToast("Écris quelque chose !", "error");
+          if (!content) return showToast('Écris quelque chose !', 'error');
 
           try {
             const res = await fetch(`/posts/comment/add/${postId}/`, {
-              method: "POST",
-              headers: {
-                "X-CSRFToken": csrfToken,
-                "Content-Type": "application/x-www-form-urlencoded"
-              },
+              method: 'POST',
+              headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/x-www-form-urlencoded' },
               body: `content=${encodeURIComponent(content)}`
             });
             const data = await res.json();
 
             if (data.success) {
               const commentsDiv = document.getElementById(`comments-${postId}`);
-              const newComment = document.createElement("div");
-              newComment.className =
-                "comment-slide bg-gray-50 p-4 rounded-xl mt-4 border-l-4 border-indigo-500 animate-fadeIn";
+              const newComment = document.createElement('div');
+              newComment.className = 'comment-slide bg-gray-50 p-3 sm:p-4 rounded-xl mt-3 sm:mt-4 border-l-4 border-indigo-500 animate-fadeIn';
+              newComment.id = `comment-${data.comment.id}`;
               newComment.innerHTML = `
-              <div class="flex items-center gap-2 mb-1">
-                <strong class="text-indigo-700">${data.comment.author}</strong>
-                <small class="text-gray-500">${data.comment.created_at}</small>
+              <div class="flex items-center justify-between mb-1 sm:mb-2">
+                <div class="flex items-center gap-2">
+                  <strong class="text-indigo-700 text-sm sm:text-base">${data.comment.author}</strong>
+                  <small class="text-gray-500 text-xs sm:text-sm">${data.comment.created_at}</small>
+                </div>
+                <button class="comment-like-btn text-xs sm:text-sm flex items-center gap-1 text-gray-500 hover:text-red-500" data-comment-id="${data.comment.id}">
+                  <i class="fas fa-heart"></i>
+                  <span id="comment-likes-count-${data.comment.id}">0</span>
+                </button>
               </div>
-              <p class="text-gray-800">${data.comment.content}</p>
+              <p class="text-gray-800 text-sm sm:text-base">${data.comment.content}</p>
             `;
               commentsDiv.prepend(newComment);
-              textarea.value = "";
-              form.classList.add("hidden");
-              showToast("Commentaire ajouté !");
+              attachCommentLikeListener(newComment.querySelector('.comment-like-btn'));
+              textarea.value = '';
+              form.classList.add('hidden');
+              showToast('Commentaire ajouté !');
             } else {
-              showToast(data.error || "Erreur serveur", "error");
+              showToast(data.error || 'Erreur serveur', 'error');
             }
           } catch (err) {
-            console.error("Commentaire erreur:", err);
-            showToast("Erreur réseau", "error");
+            console.error('Commentaire erreur:', err);
+            showToast('Erreur réseau', 'error');
           }
         });
       });
 
-      document.querySelectorAll(".share-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const postId = btn.dataset.postId;
+      function attachCommentLikeListener(btn) {
+        if (!btn) return;
+        btn.addEventListener('click', async () => {
+          const commentId = btn.dataset.commentId;
           try {
-            const res = await fetch(`/posts/repost/${postId}/`, {
-              method: "POST",
-              headers: {
-                "X-CSRFToken": csrfToken,
-                "Content-Type": "application/json"
-              }
+            const res = await fetch(`/posts/comment/like/${commentId}/`, {
+              method: 'POST',
+              headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' }
             });
             const data = await res.json();
             if (data.success) {
-              showToast("Publication repostée dans ton fil !");
-              // Optionnel : recharger la page ou ajouter le repost dynamiquement
-              // location.reload(); // ou insérer le nouveau post en haut
-            } else {
-              showToast(data.error || "Erreur", "error");
+              const countSpan = document.getElementById(`comment-likes-count-${commentId}`);
+              countSpan.textContent = data.likes_count;
+              if (data.liked) {
+                btn.classList.add('text-red-500');
+                btn.classList.remove('text-gray-500');
+              } else {
+                btn.classList.remove('text-red-500');
+                btn.classList.add('text-gray-500');
+              }
+              
+              const likersDiv = document.getElementById(`comment-likers-${commentId}`);
+              if (data.likers && data.likers.length > 0) {
+                const likersHtml = data.likers.map((l, idx) => 
+                  `<span class="liker-username">@${l.user__username}</span>${idx < data.likers.length - 1 ? ', ' : ''}`
+                ).join('');
+                likersDiv.innerHTML = likersHtml;
+              } else {
+                likersDiv.innerHTML = '';
+              }
+              
+              showToast(data.liked ? "J'aime !" : "Like retiré");
             }
           } catch (err) {
-            console.error("Repost erreur:", err);
-            showToast("Erreur réseau", "error");
+            console.error('Comment like erreur:', err);
+            showToast('Erreur réseau', 'error');
+          }
+        });
+      }
+
+      document.querySelectorAll('.comment-like-btn').forEach(btn => attachCommentLikeListener(btn));
+
+      // Repost
+      document.querySelectorAll('.share-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const postId = btn.dataset.postId;
+          try {
+            const res = await fetch(`/posts/repost/${postId}/`, {
+              method: 'POST',
+              headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast('Publication repartagée dans ton fil !');
+            } else {
+              showToast(data.error || 'Erreur', 'error');
+            }
+          } catch (err) {
+            console.error('Repost erreur:', err);
+            showToast('Erreur réseau', 'error');
           }
         });
       });
