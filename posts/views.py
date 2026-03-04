@@ -8,16 +8,20 @@ from django.contrib import messages
 from .models import Post
 from interactions.models import Like, Comment, CommentLike
 from accounts.models import Notification, FriendRequest
+from .forms import PostForm
+
 
 
 @login_required
 def feed(request):
     if request.method == 'POST':
-        content = request.POST.get('content', '').strip()
-        if content:
-            post = Post.objects.create(author=request.user, content=content)
+        form = PostForm(request.POST, request.FILES)  # ← très important : request.FILES pour les uploads
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
             
-            # Envoyer des notifications aux amis
+            # Envoyer des notifications aux amis (ton code existant)
             friends_ids = list(request.user.friends.values_list('id', flat=True))
             for friend_id in friends_ids:
                 Notification.objects.create(
@@ -30,12 +34,13 @@ def feed(request):
             
             messages.success(request, "Publication postée !")
         else:
-            messages.error(request, "Le contenu ne peut pas être vide.")
+            messages.error(request, "Erreur dans le formulaire. Vérifiez les champs.")
         return redirect('fils_actualite')
 
-    posts_list = Post.objects.all().order_by('-created_at')
+    # Récupération des posts (ton code existant, juste nettoyé un peu)
+    # posts_list = Post.objects.all().order_by('-created_at')
+    posts_list = Post.objects.select_related('author').order_by('-created_at')
     
-    # Ajouter les infos de like pour chaque post
     for post in posts_list:
         post.is_liked = post.like_set.filter(user=request.user).exists()
         post.likers = list(post.like_set.select_related('user').values('user__id', 'user__username'))
@@ -44,15 +49,12 @@ def feed(request):
             comment.is_liked = comment.likes.filter(user=request.user).exists()
             comment.likers = list(comment.likes.select_related('user').values('user__id', 'user__username'))
         
-        # Ajouter les infos de demande d'ami
         post.is_friend = post.author in request.user.friends
-        
         post.has_pending_request = FriendRequest.objects.filter(
             from_user=request.user, 
             to_user=post.author, 
             status='pending'
         ).exists()
-        
         post.has_received_request = FriendRequest.objects.filter(
             from_user=post.author,
             to_user=request.user,
@@ -66,6 +68,7 @@ def feed(request):
     context = {
         'page_obj': page_obj,
         'user': request.user,
+        'post_form': PostForm()  # ← on passe le formulaire vide au template
     }
     return render(request, 'feed.html', context)
 
